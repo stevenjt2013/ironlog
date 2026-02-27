@@ -1470,6 +1470,10 @@ onAuthStateChanged(auth, async (user) => {
 <div class="modal-overlay" id="upload-modal">
   <div class="modal">
     <h2>📸 UPLOAD WORKOUT</h2>
+    <div class="api-key-section">
+      <p>🔑 Anthropic API Key (required for image reading)</p>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." style="width:100%;background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;outline:none;font-family:'DM Mono',monospace;font-size:13px;">
+    </div>
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">📷</div>
       <p><strong>Click to upload</strong> or drag and drop</p>
@@ -2758,6 +2762,8 @@ function openUploadModal() {
   document.getElementById('upload-workout-name').value = '';
   document.getElementById('upload-phase').value = '';
   document.getElementById('upload-day').value = '';
+  const savedKey = localStorage.getItem('ironlog_apikey');
+  if(savedKey) document.getElementById('api-key-input').value = savedKey;
   document.getElementById('upload-modal').classList.add('open');
 }
 
@@ -2787,13 +2793,15 @@ uploadArea.addEventListener('drop', e => {
 });
 
 async function processUpload() {
-  const apiKey = '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';
+  const apiKey = document.getElementById('api-key-input').value.trim();
   const workoutName = document.getElementById('upload-workout-name').value.trim() || 'My Workout';
   const phase = document.getElementById('upload-phase').value.trim() || '';
   const day = document.getElementById('upload-day').value.trim() || '';
 
   if(!uploadedFile) { showToast('Please select an image first', 'error'); return; }
+  if(!apiKey) { showToast('Please enter your API key', 'error'); return; }
 
+  localStorage.setItem('ironlog_apikey', apiKey);
   closeModal('upload-modal');
   showLoading('Analyzing your workout image...');
 
